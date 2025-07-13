@@ -6,6 +6,7 @@ import os
 sns_client = boto3.client("sns")
 
 from utils import scan_file_with_virustotal, get_virustotal_verdict
+from datetime import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -52,7 +53,7 @@ def lambda_handler(event, context):
                 f"File: {object_key}\n"
                 f"Bucket: {bucket_name}\n"
                 f"Verdict: {verdict}\n"
-                f"Timestamp: {context.timestamp if context else 'N/A'}"
+                f"Timestamp: {timestamp}"
             )
 
             sns_client.publish(

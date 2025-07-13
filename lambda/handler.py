@@ -3,6 +3,8 @@ import logging
 import boto3
 import os
 
+sns_client = boto3.client("sns")
+
 from utils import scan_file_with_virustotal, get_virustotal_verdict
 
 logger = logging.getLogger()
@@ -43,6 +45,22 @@ def lambda_handler(event, context):
         else:
             target_bucket = os.environ.get("QUARANTINE_BUCKET_NAME")
             logger.warning("File marked as INFECTED or SUSPICIOUS.")
+            # Send SNS alert
+            sns_topic_arn = os.environ.get("VIRUS_ALERT_TOPIC_ARN")
+            alert_message = (
+                f"Threat detected!\n\n"
+                f"File: {object_key}\n"
+                f"Bucket: {bucket_name}\n"
+                f"Verdict: {verdict}\n"
+                f"Timestamp: {context.timestamp if context else 'N/A'}"
+            )
+
+            sns_client.publish(
+                TopicArn=sns_topic_arn,
+                Subject="Virus Scan Alert",
+                Message=alert_message
+            )
+            logger.info("📣 SNS alert sent to threat notification topic.")
 
         # 6. Upload to appropriate bucket
         s3_client.upload_file(local_path, target_bucket, object_key)

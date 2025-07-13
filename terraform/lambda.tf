@@ -17,6 +17,7 @@ resource "aws_lambda_function" "virus_scan_lambda" {
       CLEAN_BUCKET_NAME       = var.clean_bucket_name
       QUARANTINE_BUCKET_NAME  = var.quarantine_bucket_name
       VIRUSTOTAL_API_KEY      = var.virustotal_api_key_value
+      VIRUS_ALERT_TOPIC_ARN   = aws_sns_topic.threat_alerts.arn
     }
   }
 

@@ -59,7 +59,16 @@ resource "aws_iam_policy" "lambda_policy" {
           "arn:aws:s3:::${var.clean_bucket_name}/*",
           "arn:aws:s3:::${var.quarantine_bucket_name}/*"
         ]
+      },
+
+      {
+        Effect = "Allow",
+        Action = [
+          "sns:Publish"
+        ],
+        Resource = aws_sns_topic.threat_alerts.arn
       }
+
     ]
   })
 }

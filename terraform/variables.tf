@@ -67,7 +67,7 @@ variable "lambda_memory_size" {
 variable "lambda_timeout" {
   description = "Timeout for the Lambda function in seconds"
   type        = number
-  default     = 30
+  default     = 90
 }
 
 variable "lambda_zip_path" {

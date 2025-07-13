@@ -34,6 +34,8 @@ def scan_file_with_virustotal(file_path: str) -> str:
             files = {
                 "file": (os.path.basename(file_path), file_to_scan)
             }
+            
+            logger.info(f"VIRUSTOTAL_API_KEY present: {bool(VIRUSTOTAL_API_KEY)}, length: {len(VIRUSTOTAL_API_KEY) if VIRUSTOTAL_API_KEY else 0}")
 
             response = requests.post(VIRUSTOTAL_SCAN_URL, headers=headers, files=files)
             response.raise_for_status()

@@ -16,7 +16,7 @@ resource "aws_lambda_function" "virus_scan_lambda" {
     variables = {
       CLEAN_BUCKET_NAME       = var.clean_bucket_name
       QUARANTINE_BUCKET_NAME  = var.quarantine_bucket_name
-      VIRUSTOTAL_API_KEY      = "your-api-key-here" # <-- Replace with your real key
+      VIRUSTOTAL_API_KEY      = var.virustotal_api_key_value
     }
   }
 

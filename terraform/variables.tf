@@ -81,3 +81,8 @@ variable "virustotal_api_key_value" {
   description = "API key for VirusTotal (used via GitHub Actions)"
   sensitive   = true
 }
+
+variable "alert_email" {
+  description = "Email address to receive virus threat alerts"
+  type        = string
+}

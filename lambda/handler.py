@@ -2,16 +2,15 @@ import json
 import logging
 import boto3
 import os
-
-sns_client = boto3.client("sns")
+from datetime import datetime
 
 from utils import scan_file_with_virustotal, get_virustotal_verdict
-from datetime import datetime
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 s3_client = boto3.client("s3")
+sns_client = boto3.client("sns")
 
 def lambda_handler(event, context):
     logger.info("Received S3 event: %s", json.dumps(event))
@@ -24,29 +23,30 @@ def lambda_handler(event, context):
 
         logger.info(f"New file uploaded: s3://{bucket_name}/{object_key}")
 
-        # 2. Download the file to /tmp
+        # 2. Download file to /tmp
         filename = os.path.basename(object_key)
         local_path = f"/tmp/{filename}"
-
         s3_client.download_file(bucket_name, object_key, local_path)
-        logger.info(f"File downloaded to {local_path}")
+        logger.info(f"File downloaded locally: {local_path}")
 
         # 3. Submit file to VirusTotal
         analysis_id = scan_file_with_virustotal(local_path)
         logger.info(f"VirusTotal analysis ID: {analysis_id}")
 
-        # 4. Poll for result and get verdict
+        # 4. Get verdict
         verdict = get_virustotal_verdict(analysis_id)
-        logger.info(f"Verdict from VirusTotal: {verdict}")
+        logger.info(f"VirusTotal verdict: {verdict}")
 
-        # 5. Decide destination bucket
+        # 5. Route file based on verdict
         if verdict == "clean":
             target_bucket = os.environ.get("CLEAN_BUCKET_NAME")
             logger.info("File marked as CLEAN.")
         else:
             target_bucket = os.environ.get("QUARANTINE_BUCKET_NAME")
             logger.warning("File marked as INFECTED or SUSPICIOUS.")
-            # Send SNS alert
+
+            # 6. Send SNS alert
+            timestamp = datetime.utcnow().isoformat() + "Z"
             sns_topic_arn = os.environ.get("VIRUS_ALERT_TOPIC_ARN")
             alert_message = (
                 f"Threat detected!\n\n"
@@ -61,9 +61,9 @@ def lambda_handler(event, context):
                 Subject="Virus Scan Alert",
                 Message=alert_message
             )
-            logger.info("📣 SNS alert sent to threat notification topic.")
+            logger.info("SNS alert sent.")
 
-        # 6. Upload to appropriate bucket
+        # 7. Upload to appropriate bucket
         s3_client.upload_file(local_path, target_bucket, object_key)
         logger.info(f"File moved to: s3://{target_bucket}/{object_key}")
 

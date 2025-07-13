@@ -19,7 +19,8 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: us-east-2
       TF_VAR_virustotal_api_key_value: ${{ secrets.VIRUSTOTAL_API_KEY }}
-
+      TF_VAR_alert_email: ${{ secrets.ALERT_EMAIL }}
+      
     defaults:
       run:
         working-directory: terraform

@@ -9,14 +9,16 @@ on:
 permissions:
   contents: read
 
-env:
-  AWS_REGION: us-east-2
-  TF_VAR_virustotal_api_key_value: ${{ secrets.VIRUSTOTAL_API_KEY }}
-
 jobs:
   terraform:
     name: Terraform Apply
     runs-on: ubuntu-latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-2
+      TF_VAR_virustotal_api_key_value: ${{ secrets.VIRUSTOTAL_API_KEY }}
 
     defaults:
       run:
@@ -42,6 +44,3 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
